@@ -1,162 +1,147 @@
-#include <gtk/gtk.h>
-
-#define ACE 0
-#define CARDS 13
-#define SUITS 4
-#define MAX_CARDS 10
-#define SCREENLINECOUNT 17
-
-struct table {
-
-	int cards_dealer[MAX_CARDS];
-	
-	int cards_player[MAX_CARDS];
-    
-    int points[MAX_CARDS];  					/* Points for each hand */
-   
-    int total_player, total_dealer;				/* total points */
-        
-    int hand_player, hand_dealer;				/* number of cards dealt */
-    
-    int aces_player, aces_dealer;				/* N° of aces: These variable are used to attribute values 1/11 to Aces*/
-    
-    int credit;
-    
-    int bet;
-    
-    GtkWidget *vbox, *canvas;
-    
-};
-
-struct {
-  cairo_surface_t *image[MAX_CARDS];
-  int x[MAX_CARDS];
-} glob;
-
-static void destroy (GtkWidget *window, gpointer data);
-void button_clicked(GtkWidget *widget, struct table *game);
-void init_game(struct table *game);
-static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data);
-static void do_drawing(cairo_t *cr);
+#include <stdlib.h>
+#include "black.h"
 
 int main (int argc, char *argv[])
 {
-        GtkWidget *window, *button_hit, *button_stand, *hbox;
+        GtkWidget *window;
+        GtkWidget *headbar;
+        GtkWidget *vbox;
+        GtkWidget *hbox;
+        GtkWidget *about_button;
+        GtkWidget *button_hit;
+        GtkWidget *button_stand;
+       	GtkWidget *button_chip1, *button_chip5, *button_chip25, *button_chip100, *button_chip0;
+       	
+       	gtk_init (&argc, &argv);
+       	
+        struct table dealer;
         
-		struct table game;
+        int i;
 		
-		int i;
+		dealer.next = malloc(sizeof(struct table));
 		
-		init_game(&game);
-        
-        gtk_init (&argc, &argv);        
+		dealer.next->next = NULL;		
+		
+		srand((unsigned)time(NULL));
+		
+		glob.status = glob.end = 0;
+		glob.credit = 50;
+		
+		glob.image_back = cairo_image_surface_create_from_png("c/back.png");
+	
+		glob.x[0] = 10;
+	
+		for (i = 1; i < MAX_CARDS; i++)
+			glob.x[i] = glob.x[i-1] + 110;        
         
         window = gtk_window_new (GTK_WINDOW_TOPLEVEL);				/* create window */
-        gtk_window_set_title (GTK_WINDOW (window), "Show Images");
+        headbar = gtk_header_bar_new();
+        about_button = gtk_button_new_with_mnemonic("_About");
+        vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 30);
+		hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 50);
+		dealer.hbox_chips = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+		button_hit = gtk_button_new_with_mnemonic ("Hit");
+		button_stand = gtk_button_new_with_mnemonic ("Stand");
+		button_start = gtk_button_new_with_mnemonic ("Start");
+		button_play_again = gtk_button_new_with_mnemonic ("Play Again");
+		button_chip1 = gtk_button_new();
+		button_chip5 = gtk_button_new();
+		button_chip25 = gtk_button_new();
+		button_chip100 = gtk_button_new();
+		button_chip0 = gtk_button_new();
+		label_msg = gtk_label_new ("Please Bet");
+		label_credit = gtk_label_new ("Credit");
+		label_bet = gtk_label_new ("0");
+       	dealer.canvas = gtk_drawing_area_new();
+       	
+       	/* Set Properties */
+        
+		gtk_header_bar_set_title (GTK_HEADER_BAR (headbar), "Ventuno");
+		gtk_window_set_titlebar (GTK_WINDOW (window), headbar);
+	    gtk_header_bar_set_show_close_button (GTK_HEADER_BAR (headbar), TRUE);
+        gtk_window_set_title (GTK_WINDOW (window), "BlackJack");
 		gtk_window_maximize (GTK_WINDOW (window));
-		
+		g_object_set (dealer.canvas, "expand", TRUE, NULL);			/* expand the canvas */
 		GtkCssProvider *css_provider = gtk_css_provider_new();		/* Apply style */
   		gtk_css_provider_load_from_path (css_provider, "style.css", NULL);
   		
-  		GdkScreen *myScreen= gdk_screen_get_default();
+  		GdkScreen *myScreen = gdk_screen_get_default();
 		gtk_style_context_add_provider_for_screen
                                (myScreen,
                                 GTK_STYLE_PROVIDER (css_provider),
                                 GTK_STYLE_PROVIDER_PRIORITY_USER);
-			
-		game.vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5);
-		gtk_container_add(GTK_CONTAINER (window), game.vbox);
-			
- 		game.canvas = gtk_drawing_area_new();  		
-  		gtk_container_add (GTK_CONTAINER (game.vbox), game.canvas);
-  		g_object_set (game.canvas, "expand", TRUE, NULL);			/* expand the canvas */
-				    
-	    hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 30);		/* hbox for buttons */
-		gtk_container_add (GTK_CONTAINER (game.vbox), hbox);
-        button_hit = gtk_button_new_with_mnemonic ("Hit");
+                                
+        /* Fill the vertical box container */
+        
+		gtk_container_add(GTK_CONTAINER(headbar), about_button);
+		gtk_container_add(GTK_CONTAINER (window), vbox);
+		gtk_container_add (GTK_CONTAINER (vbox), dealer.canvas);
+		gtk_container_add(GTK_CONTAINER (vbox), hbox);
    		gtk_container_add (GTK_CONTAINER (hbox), button_hit);
-   		
-   		g_signal_connect(G_OBJECT(button_hit), "clicked", G_CALLBACK(button_clicked), &game);
-   		g_signal_connect (G_OBJECT (window), "destroy",
-			G_CALLBACK (destroy), NULL);
-		g_signal_connect(G_OBJECT(game.canvas), "draw", 
-      	G_CALLBACK(on_draw_event), NULL); 
-			
-   		button_stand = gtk_button_new_with_mnemonic ("Stand");
    		gtk_container_add (GTK_CONTAINER (hbox), button_stand);
-   		
+		gtk_container_add(GTK_CONTAINER (hbox), label_msg);
+		gtk_container_add(GTK_CONTAINER (hbox), label_bet);
+		gtk_container_add(GTK_CONTAINER (hbox), label_credit);
+		gtk_container_add (GTK_CONTAINER (hbox), button_start);
+		gtk_container_add (GTK_CONTAINER (hbox), button_play_again);
+		gtk_container_add(GTK_CONTAINER (vbox), dealer.hbox_chips);
+		gtk_container_add (GTK_CONTAINER (dealer.hbox_chips), button_chip1);
+		gtk_container_add(GTK_CONTAINER (dealer.hbox_chips), button_chip5);
+		gtk_container_add(GTK_CONTAINER (dealer.hbox_chips), button_chip25);
+		gtk_container_add(GTK_CONTAINER (dealer.hbox_chips), button_chip100);
+		gtk_container_add(GTK_CONTAINER (dealer.hbox_chips), button_chip0);
+		
+		updateLabel(label_credit, &glob.credit);
+
+		/* Update img to buttons */
+		GtkWidget *image = gtk_image_new_from_file ("c/chip1.svg");
+		gtk_button_set_image (GTK_BUTTON (button_chip1), image);	
+
+		image = gtk_image_new_from_file ("c/chip5.svg");
+		gtk_button_set_image (GTK_BUTTON (button_chip5), image);
+
+		image = gtk_image_new_from_file ("c/chip25.svg");
+		gtk_button_set_image (GTK_BUTTON (button_chip25), image);
+
+		image = gtk_image_new_from_file ("c/chip100.svg");
+		gtk_button_set_image (GTK_BUTTON (button_chip100), image);
+		
+		image = gtk_image_new_from_file ("c/chip0.png");
+		gtk_button_set_image (GTK_BUTTON (button_chip0), image);
+		
+		GtkStyleContext *context;
+		context = gtk_widget_get_style_context(dealer.hbox_chips);		/* Apply style to hbox_chips */
+		gtk_style_context_add_class(context,"my_hbox_chips");
+								
+		context = gtk_widget_get_style_context(hbox);					/* Apply style to hbox */
+		gtk_style_context_add_class(context,"my_hbox");
+		
+   		g_signal_connect(G_OBJECT(button_hit), "clicked", G_CALLBACK(button_hit_clicked), &dealer);
+   		g_signal_connect(G_OBJECT(button_stand), "clicked", G_CALLBACK(button_stand_clicked), &dealer);
+		g_signal_connect (about_button, "clicked", G_CALLBACK (activate_about), NULL);
+		g_signal_connect (G_OBJECT (window), "destroy",	G_CALLBACK (destroy), NULL);
+		g_signal_connect(G_OBJECT(dealer.canvas), "draw", G_CALLBACK(on_draw_event), &dealer);
+	    g_signal_connect(G_OBJECT(button_chip1), "clicked", G_CALLBACK(buttonAdd), GINT_TO_POINTER(1));
+		g_signal_connect(G_OBJECT(button_chip5), "clicked", G_CALLBACK(buttonAdd), GINT_TO_POINTER(5));
+		g_signal_connect(G_OBJECT(button_chip25), "clicked", G_CALLBACK(buttonAdd), GINT_TO_POINTER(25));
+		g_signal_connect(G_OBJECT(button_chip100), "clicked", G_CALLBACK(buttonAdd), GINT_TO_POINTER(100));
+		g_signal_connect(G_OBJECT(button_chip0), "clicked", G_CALLBACK(reset), GINT_TO_POINTER(100));
+ 		g_signal_connect(G_OBJECT(button_start), "clicked", G_CALLBACK(init_game), &dealer);
+ 		g_signal_connect(G_OBJECT(button_play_again), "clicked", G_CALLBACK(new_game), &dealer);
+ 		
 		gtk_widget_show_all (window);
-   		               
+		
+		gtk_widget_hide(button_play_again);
+ 
    		gtk_main();
    		
-   		for (i = 0; i < MAX_CARDS; i++)
-			cairo_surface_destroy(glob.image[i]);
+   		for (i = 0; i < dealer.hand; i++)
+			cairo_surface_destroy(dealer.card[i]);
+			
+		for (i = 0; i < dealer.next->hand; i++)
+			cairo_surface_destroy(dealer.next->card[i]);
+		
+		free(dealer.next);
 			
         return 0;
-} 
- 
-void button_clicked(GtkWidget *widget, struct table *game)
-{   		
-	const gchar *cards_dealer[] = {"resized_cards/back.png" ,"resized_cards/010.png", "resized_cards/011.png", "resized_cards/312.png", "resized_cards/01.png"};
-	/*const gchar *cards_player[] = {"resized_cards/00.png", "resized_cards/01.png", "resized_cards/03.png", "resized_cards/312.png"};*/
-
-	int current_hand = game->hand_dealer;
-	
-    glob.image[current_hand] = cairo_image_surface_create_from_png(cards_dealer[current_hand]);
-
-    game->hand_dealer++;
-
-}
-
-static void destroy (GtkWidget *window, gpointer data)
-{
-	gtk_main_quit ();
-}
-
-void init_game(struct table *game) {
-
-	game->total_player = game->total_dealer = 0;
-
-	game->aces_player = game->aces_dealer = 0;
-	
-	game->hand_dealer = game->hand_player = 0;
-	
-	/*draw_cards(player);*/
-	
-	/*assign_points(player); */
-			
-	/*assign_points(player); */
-	
-	game->credit = 50;
-	
-	int i;
-	
-	for (i = 0; i < MAX_CARDS; i++)
-		glob.image[MAX_CARDS] = NULL;
-	
-	glob.x[0] = 10;
-	
-	for (i = 1; i < MAX_CARDS; i++)
-		glob.x[i] += 220;
-}
-
-static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
-{   
- 
-  do_drawing(cr);
-
-  return FALSE;
-}
-
-static void do_drawing(cairo_t *cr)
-{  
-  int i;
-  
-  for (i = 0; i < MAX_CARDS; i++) {
-	  if (glob.image[i] != NULL) {
-		  cairo_set_source_surface(cr, glob.image[i], glob.x[i], 10);
-		  cairo_paint(cr);
-	  }
-  }
-  
 }
