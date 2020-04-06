@@ -1,5 +1,9 @@
 #include "black.h"
 
+#define ACE 0
+#define CARDS 13
+#define SUITS 4
+
 enum outcomes {NO_WINNER, PLAYER_WINS, BLACKJACK, DEALER_WINS, TIE};
 
 void draw_cards(struct table *player) {
@@ -98,35 +102,34 @@ void findWinner (struct table *player) {
 	
 	if (winner != NO_WINNER) {
 	
-		glob.status = 0;
-		glob.end = 1;
-		gtk_widget_show (button_play_again);
+		player->status = 0;
+		player->end = 1;
+		gtk_widget_show (player->button_play_again);
 		
 		if (winner == BLACKJACK) {
 			glob.credit += (glob.bet * 3)/2;
-			updatelabel_msg("Congratulation you win!");
+			updatelabel_msg("Congratulation you win: ", player);
 		}
 		
 		else if (winner == PLAYER_WINS) {
-			updatelabel_msg("Congratulation you win!");
+			updatelabel_msg("Congratulation you win: ", player);
 			glob.credit += glob.bet;
 		}
 					
 		else if (winner == DEALER_WINS) {
-			updatelabel_msg("Dealer wins!");
+			updatelabel_msg("Dealer wins ", player);
 			glob.credit -= glob.bet;
 		}
 					
 		else
-			updatelabel_msg("No one wins");
+			updatelabel_msg("No one wins", player);
 		
 		if (glob.credit <= 0) {
-			updatelabel_msg("Dealer wins. Sorry you bankrupted");
+			updatelabel_msg("Dealer wins. Sorry you bankrupted", player);			
 			glob.credit = 50;
 		}
+		
 		glob.bet = 0;
-		updateLabel(label_credit, &glob.credit);
+		updatelabel_credit();
 	}
-	g_print("Player total %d\n", player->next->total);
-	g_print("Dealer total %d\n", player->total);
 }

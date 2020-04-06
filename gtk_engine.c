@@ -4,11 +4,12 @@ void init_game(GtkWidget *widget, struct table *player) {
 
 	int i;
 	gtk_widget_hide(widget);
+	gtk_widget_show(player->hbox);
 	gtk_widget_hide(player->hbox_chips);
-	gtk_widget_hide(button_play_again);
-	gtk_label_set_text (GTK_LABEL(label_msg), "");
-	glob.status = 1;
-	glob.end = 0;
+	gtk_widget_hide(player->button_play_again);
+	gtk_label_set_text (GTK_LABEL(player->label_msg), "");
+	player->status = 1;
+	player->end = 0;
 	
 	player->total =	player->aces = player->hand = player->check_stand = 0;
 	player->next->total = player->next->aces = player->next->hand = 0;
@@ -82,35 +83,35 @@ void button_stand_clicked(GtkWidget *widget, struct table *player)
 	findWinner(player);
 }
 
-static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, struct table *player)
+gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, struct table *player)
 {
-  if (glob.status != 0 || glob.end == 1)
+  if (player->status != 0 || player->end == 1)
   	do_drawing(cr, player);
 
   return FALSE;
 }
 
-static void do_drawing(cairo_t *cr, struct table *player)
+void do_drawing(cairo_t *cr, struct table *player)
 {
    int i;
   
 	for (i = 0; i <= player->hand; i++) {
   
-	  	if (i == 0 && glob.end == 0)
-		  	cairo_set_source_surface(cr, glob.image_back, 10, 10);
+	  	if (i == 0 && player->end == 0)
+		  	cairo_set_source_surface(cr, player->image_back, 10, 10);
 		else
-	    	cairo_set_source_surface(cr, player->card[i], glob.x[i], 10);
+	    	cairo_set_source_surface(cr, player->card[i], player->x[i], 10);
 		    
 	    cairo_paint(cr);
 	}
   
 	for (i = 0; i <= player->next->hand; i++) {
-		cairo_set_source_surface(cr, player->next->card[i], glob.x[i], 320);
+		cairo_set_source_surface(cr, player->next->card[i], player->x[i], 320);
   		cairo_paint(cr);
 	}
 }
 
-static void activate_about() {
+void activate_about() {
 
 	const gchar *authors[] = {"simplicius", NULL};
 
@@ -118,52 +119,61 @@ static void activate_about() {
                        "program-name", "BlackJack",
                        "version", "0.0.1",
     				   "license-type", GTK_LICENSE_GPL_3_0,
-    				   "website", "https://github.com/kjk",
+    				   "website", "https://github.com/gioretikto/blackjack",
 					   "authors", authors,
     				   "logo-icon-name", "start-here",
+    				   "comments", "reach me on #cansi Freenode IRC",
                        "title", ("BlackJack"),
                        NULL);
 }
 
 /* Stop the GTK+ main loop function when the window is destroyed. */
-static void destroy (GtkWidget *window, gpointer data)
+void destroy (GtkWidget *window, gpointer data)
 {
 	gtk_main_quit ();
 }
 
-static void new_game (GtkWidget *window, struct table *player)
+void new_game (GtkWidget *window, struct table *player)
 {
-	gtk_label_set_text (GTK_LABEL(label_msg), "Please Bet");
-	gtk_label_set_text (GTK_LABEL(label_bet), "0");
-	gtk_widget_hide(window);
-	gtk_widget_show(button_start);
+	gtk_label_set_text (GTK_LABEL(player->label_msg), "Please Bet ");
+	gtk_label_set_text (GTK_LABEL(glob.label_bet), "0");
+	gtk_widget_hide(player->hbox);
 	gtk_widget_show(player->hbox_chips);
 }
 
 void buttonAdd (GtkButton *button, gpointer data)
 {
+	gtk_widget_show(glob.button_start);
 	if (glob.bet + GPOINTER_TO_INT(data) <= glob.credit) {
 	    glob.bet += GPOINTER_TO_INT(data);
-    	updateLabel(label_bet, &glob.bet);
+    	updatelabel_bet();
     }
 }
 
-void updateLabel(GtkWidget *label, int *num)
+void updatelabel_bet()
 {
 	gchar *display;
-    display = g_strdup_printf("%d$", *num);				/* convert num to str */
-    gtk_label_set_text (GTK_LABEL(label), display);		/* set label to "display */
-    g_free(display);                              		/* free display */
-    
+    display = g_strdup_printf(" %d$ ", glob.bet);			/* convert num to str */
+    gtk_label_set_text (GTK_LABEL(glob.label_bet), display);		/* set label to "display */
+    g_free(display);                              			/* free display */    
 }
 
-void updatelabel_msg(gchar *display)
+void updatelabel_credit()
 {
-	gtk_label_set_text (GTK_LABEL(label_msg), display);
+	gchar *display;
+    display = g_strdup_printf(" Credit %d$",  glob.credit);		/* convert num to str */
+    gtk_label_set_text (GTK_LABEL(glob.label_credit), display);		/* set label to "display */
+    g_free(display);                              				/* free display */    
+}
+
+void updatelabel_msg(gchar *display, struct table *player)
+{
+	gtk_label_set_text (GTK_LABEL(player->label_msg), display);
 }
 
 void reset (GtkButton *button, gpointer data)
 {
     glob.bet = 0;
-    updateLabel(label_bet, &glob.bet);
+    updatelabel_bet();
+    gtk_widget_hide(glob.button_start);
 }

@@ -6,11 +6,11 @@ int main (int argc, char *argv[])
         GtkWidget *window;
         GtkWidget *headbar;
         GtkWidget *vbox;
-        GtkWidget *hbox;
         GtkWidget *about_button;
         GtkWidget *button_hit;
         GtkWidget *button_stand;
        	GtkWidget *button_chip1, *button_chip5, *button_chip25, *button_chip100, *button_chip0;
+       	GtkWidget *hbox_msg; /* contains credit and bet label */
        	
        	gtk_init (&argc, &argv);
        	
@@ -24,34 +24,35 @@ int main (int argc, char *argv[])
 		
 		srand((unsigned)time(NULL));
 		
-		glob.status = glob.end = 0;
+		dealer.status = dealer.end = 0;
 		glob.credit = 50;
 		
-		glob.image_back = cairo_image_surface_create_from_png("c/back.png");
+		dealer.image_back = cairo_image_surface_create_from_png("c/back.png");
 	
-		glob.x[0] = 10;
+		dealer.x[0] = 10;
 	
 		for (i = 1; i < MAX_CARDS; i++)
-			glob.x[i] = glob.x[i-1] + 110;        
+			dealer.x[i] = dealer.x[i-1] + 110;        
         
         window = gtk_window_new (GTK_WINDOW_TOPLEVEL);				/* create window */
         headbar = gtk_header_bar_new();
         about_button = gtk_button_new_with_mnemonic("_About");
         vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 30);
-		hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 50);
+		dealer.hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 50);
 		dealer.hbox_chips = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+		hbox_msg = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 		button_hit = gtk_button_new_with_mnemonic ("Hit");
 		button_stand = gtk_button_new_with_mnemonic ("Stand");
-		button_start = gtk_button_new_with_mnemonic ("Start");
-		button_play_again = gtk_button_new_with_mnemonic ("Play Again");
+		glob.button_start = gtk_button_new_with_mnemonic ("Start");
+		dealer.button_play_again = gtk_button_new_with_mnemonic ("Play Again");
 		button_chip1 = gtk_button_new();
 		button_chip5 = gtk_button_new();
 		button_chip25 = gtk_button_new();
 		button_chip100 = gtk_button_new();
 		button_chip0 = gtk_button_new();
-		label_msg = gtk_label_new ("Please Bet");
-		label_credit = gtk_label_new ("Credit");
-		label_bet = gtk_label_new ("0");
+		dealer.label_msg = gtk_label_new ("Please Bet  ");
+		glob.label_credit = gtk_label_new ("Credit");
+		glob.label_bet = gtk_label_new ("0");
        	dealer.canvas = gtk_drawing_area_new();
        	
        	/* Set Properties */
@@ -76,14 +77,15 @@ int main (int argc, char *argv[])
 		gtk_container_add(GTK_CONTAINER(headbar), about_button);
 		gtk_container_add(GTK_CONTAINER (window), vbox);
 		gtk_container_add (GTK_CONTAINER (vbox), dealer.canvas);
-		gtk_container_add(GTK_CONTAINER (vbox), hbox);
-   		gtk_container_add (GTK_CONTAINER (hbox), button_hit);
-   		gtk_container_add (GTK_CONTAINER (hbox), button_stand);
-		gtk_container_add(GTK_CONTAINER (hbox), label_msg);
-		gtk_container_add(GTK_CONTAINER (hbox), label_bet);
-		gtk_container_add(GTK_CONTAINER (hbox), label_credit);
-		gtk_container_add (GTK_CONTAINER (hbox), button_start);
-		gtk_container_add (GTK_CONTAINER (hbox), button_play_again);
+		gtk_container_add(GTK_CONTAINER (vbox), dealer.hbox);
+		gtk_container_add(GTK_CONTAINER (vbox), hbox_msg);
+   		gtk_container_add (GTK_CONTAINER (dealer.hbox), button_hit);
+   		gtk_container_add (GTK_CONTAINER (dealer.hbox), button_stand);
+		gtk_container_add(GTK_CONTAINER (hbox_msg), dealer.label_msg);
+		gtk_container_add(GTK_CONTAINER (hbox_msg), glob.label_bet);
+		gtk_container_add(GTK_CONTAINER (hbox_msg), glob.label_credit);
+		gtk_container_add (GTK_CONTAINER (dealer.hbox_chips), glob.button_start);
+		gtk_container_add (GTK_CONTAINER (dealer.hbox), dealer.button_play_again);
 		gtk_container_add(GTK_CONTAINER (vbox), dealer.hbox_chips);
 		gtk_container_add (GTK_CONTAINER (dealer.hbox_chips), button_chip1);
 		gtk_container_add(GTK_CONTAINER (dealer.hbox_chips), button_chip5);
@@ -91,7 +93,7 @@ int main (int argc, char *argv[])
 		gtk_container_add(GTK_CONTAINER (dealer.hbox_chips), button_chip100);
 		gtk_container_add(GTK_CONTAINER (dealer.hbox_chips), button_chip0);
 		
-		updateLabel(label_credit, &glob.credit);
+		updatelabel_credit();
 
 		/* Update img to buttons */
 		GtkWidget *image = gtk_image_new_from_file ("c/chip1.svg");
@@ -113,8 +115,11 @@ int main (int argc, char *argv[])
 		context = gtk_widget_get_style_context(dealer.hbox_chips);		/* Apply style to hbox_chips */
 		gtk_style_context_add_class(context,"my_hbox_chips");
 								
-		context = gtk_widget_get_style_context(hbox);					/* Apply style to hbox */
+		context = gtk_widget_get_style_context(dealer.hbox);			/* Apply style to hbox */
 		gtk_style_context_add_class(context,"my_hbox");
+		
+		context = gtk_widget_get_style_context(hbox_msg);			/* Apply style to hbox */
+		gtk_style_context_add_class(context,"my_hbox_msg");
 		
    		g_signal_connect(G_OBJECT(button_hit), "clicked", G_CALLBACK(button_hit_clicked), &dealer);
    		g_signal_connect(G_OBJECT(button_stand), "clicked", G_CALLBACK(button_stand_clicked), &dealer);
@@ -126,12 +131,12 @@ int main (int argc, char *argv[])
 		g_signal_connect(G_OBJECT(button_chip25), "clicked", G_CALLBACK(buttonAdd), GINT_TO_POINTER(25));
 		g_signal_connect(G_OBJECT(button_chip100), "clicked", G_CALLBACK(buttonAdd), GINT_TO_POINTER(100));
 		g_signal_connect(G_OBJECT(button_chip0), "clicked", G_CALLBACK(reset), GINT_TO_POINTER(100));
- 		g_signal_connect(G_OBJECT(button_start), "clicked", G_CALLBACK(init_game), &dealer);
- 		g_signal_connect(G_OBJECT(button_play_again), "clicked", G_CALLBACK(new_game), &dealer);
+ 		g_signal_connect(G_OBJECT(glob.button_start), "clicked", G_CALLBACK(init_game), &dealer);
+ 		g_signal_connect(G_OBJECT(dealer.button_play_again), "clicked", G_CALLBACK(new_game), &dealer);
  		
 		gtk_widget_show_all (window);
 		
-		gtk_widget_hide(button_play_again);
+		gtk_widget_hide(dealer.hbox);
  
    		gtk_main();
    		
@@ -140,6 +145,8 @@ int main (int argc, char *argv[])
 			
 		for (i = 0; i < dealer.next->hand; i++)
 			cairo_surface_destroy(dealer.next->card[i]);
+		
+		cairo_surface_destroy(dealer.image_back);
 		
 		free(dealer.next);
 			

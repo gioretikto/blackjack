@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -pedantic -Wextra -std=c99 
-LDFLAGS=`(pkg-config --cflags gtk+-3.0)`
+CFLAGS = `pkg-config --cflags --libs gtk+-3.0` -std=c99
+LDLIBS = `shell pkg-config --libs gtk+-3.0`
 OBJFILES = main.o gtk_engine.o black.o
 TARGET = blackjack
 all: $(TARGET)
@@ -11,4 +11,3 @@ clean:
 	rm -f $(OBJFILES) $(TARGET)
 install:
 	cp $(TARGET) /usr/local/bin
-
