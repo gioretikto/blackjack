@@ -1,3 +1,5 @@
+BlackJack
+-----------
 Test your luck and skills in this classic BlackJack game written by simplicius in C and gtk+3. You can reach me in Freenode IRC channel #cansi
 
 The game is played with one deck of 52 cards. The rules are simple: The goal of the game is to beat the Dealer's hand. The better hand is the hand where the sum of the card values is closer to 21 without exceeding 21. The detailed outcome of the hand follows:  
@@ -14,4 +16,8 @@ The game is played with one deck of 52 cards. The rules are simple: The goal of 
     
 REQUIREMENTS
 ------------
-For compiling Scannerjack GTK+ v3, gcc and make is required.
+- GTK+3
+- gcc 
+- make
+
+compile with make
