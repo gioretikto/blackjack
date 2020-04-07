@@ -1,4 +1,5 @@
 #include "black.h"
+#include <stdlib.h>
 
 #define ACE 0
 #define CARDS 13
