@@ -7,7 +7,7 @@
 
 enum outcomes {NO_WINNER, PLAYER_WINS, BLACKJACK, DEALER_WINS, TIE};
 
-void draw_cards(struct table *player) {
+void draw_cards(struct game *player) {
 
     int card_pick, suit_pick;
     int i = 0;
@@ -39,7 +39,7 @@ void draw_cards(struct table *player) {
 	}
 }
 
-void assign_points(struct table *player) {
+void assign_points(struct game *player) {
 
 		if (player->points[player->hand] == 11)
 			player->aces++;
@@ -55,18 +55,18 @@ void assign_points(struct table *player) {
 			player->total += player->points[player->hand];			
 }
 
-void findWinner (struct table *player) {
+void findWinner (struct black *table) {
 
 	int winner;
 
-	if (player->check_stand == 1) {
+	if (table->check_stand == 1) {
 	
-		if (player->total == player->next->total)		/* Tie */
+		if (table->dealer->total == table->player->total)		/* Tie */
 			winner = TIE;
 	
-		else if (player->next->total <= 21) {
+		else if (table->dealer->total <= 21) {
 		
-			if (player->next->total > player->total)  	/* Player wins */
+			if (table->player->total > table->dealer->total)  	/* Player wins */
 				winner = PLAYER_WINS;
 			else
 				winner = DEALER_WINS;
@@ -78,23 +78,19 @@ void findWinner (struct table *player) {
 	
 	else {
 	
-		if ( (player->next->total == 21) && (player->total == 21) )		/* A tie */
+		if ( (table->player->total == 21) && (table->dealer->total == 21) )		/* A tie */
 			winner = TIE;
 	
-		else if (player->next->total > 21) 		/* If the player exceeds a sum of 21 "busts", loses, even if the dealer also exceeds 21 */
+		else if (table->player->total > 21) 		/* If the player exceeds a sum of 21 "busts", loses, even if the dealer also exceeds 21 */
 			winner = DEALER_WINS;
 
-		else if (player->next->total == 21) {
-			if (player->next->hand == 2)		/* Player wins with Blackjack */
-				winner = BLACKJACK;
-			else
+		else if (table->player->total == 21)
 				winner = PLAYER_WINS;
-		}
 					
-		else if (player->total == 21)			/* Dealer wins */
+		else if (table->dealer->total == 21)			/* Dealer wins */
 			winner = DEALER_WINS;
 			
-		else if (player->total > 21)
+		else if (table->dealer->total > 21)
 				winner = PLAYER_WINS;
 			
 		else
@@ -103,30 +99,30 @@ void findWinner (struct table *player) {
 	
 	if (winner != NO_WINNER) {
 	
-		player->status = 0;
-		player->end = 1;
-		gtk_widget_show (player->button_play_again);
+		table->status = 0;
+		table->end = 1;
+		gtk_widget_show (table->button_play_again);
 		
 		if (winner == BLACKJACK) {
 			glob.credit += (glob.bet * 3)/2;
-			updatelabel_msg("Congratulation you win: ", player);
+			updatelabel_msg("Congratulation you win: ", table);
 		}
 		
 		else if (winner == PLAYER_WINS) {
-			updatelabel_msg("Congratulation you win: ", player);
+			updatelabel_msg("Congratulation you win: ", table);
 			glob.credit += glob.bet;
 		}
 					
 		else if (winner == DEALER_WINS) {
-			updatelabel_msg("Dealer wins ", player);
+			updatelabel_msg("Dealer wins ", table);
 			glob.credit -= glob.bet;
 		}
 					
 		else
-			updatelabel_msg("No one wins", player);
+			updatelabel_msg("No one wins", table);
 		
 		if (glob.credit <= 0) {
-			updatelabel_msg("Dealer wins. Sorry you bankrupted", player);			
+			updatelabel_msg("Dealer wins. Sorry you bankrupted", table);
 			glob.credit = 50;
 		}
 		
