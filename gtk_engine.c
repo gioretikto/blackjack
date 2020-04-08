@@ -269,7 +269,7 @@ void do_drawing(cairo_t *cr, struct black *table)
 
 void activate_about() {
 
-	const gchar *authors[] = {"simplicius", NULL};
+	const gchar *authors[] = {"Giovanni Resta", NULL};
 
 	gtk_show_about_dialog (NULL,
                        "program-name", "BlackJack",
