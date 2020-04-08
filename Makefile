@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = `pkg-config --cflags --libs gtk+-3.0` -std=c99
+CFLAGS = `pkg-config --cflags --libs gtk+-3.0` -std=c99 -ggdb3
 LDLIBS = `shell pkg-config --libs gtk+-3.0`
 OBJFILES = main.o gtk_engine.o black.o
 TARGET = blackjack

@@ -1,12 +1,12 @@
 #include "black.h"
 
-struct {
-	int bet;
-	int credit;
-	GtkWidget *label_credit;
-	GtkWidget *label_bet;
-	GtkWidget *button_start;
-} glob;
+#include <gtk/gtk.h>
+#include <stdio.h>
+
+#define MAX_CARDS 10
+#define ACE 0
+#define CARDS 13
+#define SUITS 4
 
 void create_window() {
 
@@ -168,9 +168,10 @@ void init_game(GtkWidget *widget, struct black *table) {
 	
 	table->dealer->total = table->dealer->aces = table->dealer->hand = table->check_stand = 0;
 	table->player->total = table->player->aces = table->player->hand = 0;
+ 	memset(table->card_dealt, 0, sizeof(table->card_dealt));
 	
-	draw_cards(table->dealer);
-	draw_cards(table->player);
+	draw_cards(table->card_dealt, table->dealer);
+	draw_cards(table->card_dealt, table->player);
 	
 	for (i = 0; i < MAX_CARDS; i++) {
 		table->dealer->card[i] = NULL;

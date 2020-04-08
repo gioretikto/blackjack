@@ -1,29 +1,23 @@
 #include "black.h"
 #include <stdlib.h>
 
-#define ACE 0
-#define CARDS 13
-#define SUITS 4
-
 enum outcomes {NO_WINNER, PLAYER_WINS, BLACKJACK, DEALER_WINS, TIE};
 
-void draw_cards(struct game *player) {
+void draw_cards(int *card_dealt, struct game *player) {
 
     int card_pick, suit_pick;
     int i = 0;
       
-    int drawn_card[SUITS][CARDS] = {0};
-    
     while (i < MAX_CARDS) { 					/* draw dealer's card_path */
     
     	suit_pick = rand() % SUITS;
     	card_pick = rand() % CARDS;
     	
-    	if (drawn_card[suit_pick][card_pick] == 0) {
+    	if (card_dealt[suit_pick * CARDS + card_pick] == 0) {
     		
     		sprintf(player->card_path[i], "c/%d%d.png", suit_pick, card_pick);
     		
-	    	drawn_card[suit_pick][card_pick] = 1;
+	    	card_dealt[suit_pick * CARDS + card_pick] = 1;
 			
 			if (card_pick == ACE)
 				player->points[i] = 11;

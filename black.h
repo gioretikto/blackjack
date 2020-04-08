@@ -1,8 +1,10 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #define MAX_CARDS 10
+#define ACE 0
+#define CARDS 13
+#define SUITS 4
 
 struct game {
 
@@ -21,6 +23,8 @@ struct game {
 };
 
 struct black {
+
+	int card_dealt[CARDS*SUITS];
     
     _Bool check_stand, status, end;    
     
@@ -36,13 +40,21 @@ struct black {
 	
 };
 
+struct {
+	int bet;
+	int credit;
+	GtkWidget *label_credit;
+	GtkWidget *label_bet;
+	GtkWidget *button_start;
+} glob;
+
 void create_window();
 void button_hit_clicked(GtkWidget *widget, struct black *table);
 void button_stand_clicked(GtkWidget *widget, struct black *table);
 void init_game(GtkWidget *widget, struct black *table);
 gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, struct black *table);
 void do_drawing(cairo_t *cr, struct black *table);
-void draw_cards(struct game *player);
+void draw_cards(int *card_dealt, struct game *player);
 void assign_points(struct game *player);
 void activate_about();
 void destroy (GtkWidget *window, gpointer data);
