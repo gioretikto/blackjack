@@ -1,5 +1,7 @@
 # Blackjack
 
+A Blackjack written in C and Gtk+3. This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
 The game is played with one deck of 52 cards. The rules are simple: The goal of the game is to beat the Dealer's hand. The better hand is the hand where the sum of the card values is closer to 21 without exceeding 21. The detailed outcome of the hand follows:  
 
     - If the dealer exceeds 21 ("busts") and the player does not; the player wins.
