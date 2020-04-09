@@ -15,7 +15,7 @@ The game is played with one deck of 52 cards. The rules are simple: The goal of 
 This game was brought to you by Giovanni Resta
 You can reach me in Freenode IRC channel #cansi
 
-![Screenshot](https://github.com/MaryJaneInChain/trumpjack/blob/master/test.jpg)
+![Screenshot](https://github.com/gioretikto/blackjack/blob/master/blackjack.png)
 
 # Required packages
 
