@@ -12,9 +12,6 @@ The game is played with one deck of 52 cards. The rules are simple: The goal of 
     
     - If the player is dealt an Ace and a ten-value card, called a "blackjack" or "natural", and the dealer does not, the player wins and usually receives a bonus: 2/3 of the bet equal to 150%.
     
-This game was brought to you by Giovanni Resta
-You can reach me in Freenode IRC channel #cansi
-
 ![Screenshot](https://github.com/gioretikto/blackjack/blob/master/blackjack.png)
 
 # Required packages
@@ -26,3 +23,8 @@ You can reach me in Freenode IRC channel #cansi
 # Installation
 
 make blackjack
+
+# How to report bugs?
+
+This game was brought to you by Giovanni Resta
+You can reach me in Freenode IRC channel #cansi
