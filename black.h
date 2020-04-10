@@ -26,27 +26,21 @@ struct black {
 
 	int card_dealt[CARDS*SUITS];
     
+    int bet, credit;
+
+    int x[MAX_CARDS];
+    
     _Bool check_stand, status, end;    
     
-    GtkWidget *canvas, *hbox_chips, *hbox, *label_msg,  *button_play_again;
+    GtkWidget *canvas, *hbox_chips, *hbox, *label_msg, *label_credit,
+    		  *label_bet, *button_start, *button_play_again;
     
-  	cairo_surface_t *image_back;
-  	
-	int x[MAX_CARDS];
+  	cairo_surface_t *image_back;	
 	
 	struct game *dealer;
 	
-	struct game *player;
-	
+	struct game *player;	
 };
-
-struct {
-	int bet;
-	int credit;
-	GtkWidget *label_credit;
-	GtkWidget *label_bet;
-	GtkWidget *button_start;
-} glob;
 
 void create_window();
 void button_hit_clicked(GtkWidget *widget, struct black *table);
@@ -58,10 +52,10 @@ void draw_cards(int *card_dealt, struct game *player);
 void assign_points(struct game *player);
 void activate_about();
 void destroy (GtkWidget *window, gpointer data);
-void buttonAdd (GtkButton *button, gpointer data);
-void updatelabel_bet();
-void updatelabel_credit();
+void buttonAdd (GObject *button, struct black *table);
+void updatelabel_bet(struct black *table);
+void updatelabel_credit(struct black *table);
 void updatelabel_msg(gchar *display, struct black *table);
-void reset (GtkButton *button, gpointer data);
+void reset (GObject *button, struct black *table);
 void findWinner (struct black *table);
 void new_game (GtkWidget *window, struct black *table);

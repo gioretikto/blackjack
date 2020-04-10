@@ -98,29 +98,29 @@ void findWinner (struct black *table) {
 		gtk_widget_show (table->button_play_again);
 		
 		if (winner == BLACKJACK) {
-			glob.credit += (glob.bet * 3)/2;
+			table->credit += (table->bet * 3)/2;
 			updatelabel_msg("Congratulation you win: ", table);
 		}
 		
 		else if (winner == PLAYER_WINS) {
 			updatelabel_msg("Congratulation you win: ", table);
-			glob.credit += glob.bet;
+			table->credit += table->bet;
 		}
 					
 		else if (winner == DEALER_WINS) {
 			updatelabel_msg("Dealer wins ", table);
-			glob.credit -= glob.bet;
+			table->credit -= table->bet;
 		}
 					
 		else
 			updatelabel_msg("No one wins", table);
 		
-		if (glob.credit <= 0) {
+		if (table->credit <= 0) {
 			updatelabel_msg("Dealer wins. Sorry you bankrupted", table);
-			glob.credit = 50;
+			table->credit = 50;
 		}
 		
-		glob.bet = 0;
-		updatelabel_credit();
+		table->bet = 0;
+		updatelabel_credit(table);
 	}
 }
