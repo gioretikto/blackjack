@@ -48,7 +48,10 @@ void create_window() {
 		button_stand = gtk_button_new_with_mnemonic ("Stand");
 		table.button_start = gtk_button_new_with_mnemonic ("Start");
 		table.button_play_again = gtk_button_new_with_mnemonic ("Play Again");
-		
+		table.label_msg = gtk_label_new ("Please Bet  ");
+		table.label_credit = gtk_label_new ("Credit");
+		table.label_bet = gtk_label_new ("0");
+       	table.canvas = gtk_drawing_area_new();
 		button_chip1 = gtk_button_new();
 		button_chip5 = gtk_button_new();
 		button_chip25 = gtk_button_new();
@@ -59,12 +62,8 @@ void create_window() {
 		g_object_set_data(G_OBJECT(button_chip5), "id", GINT_TO_POINTER(5));
 		g_object_set_data(G_OBJECT(button_chip25), "id", GINT_TO_POINTER(25));
 		g_object_set_data(G_OBJECT(button_chip100), "id", GINT_TO_POINTER(100));
-		g_object_set_data(G_OBJECT(button_chip0), "id", GINT_TO_POINTER(0));
-		
-		table.label_msg = gtk_label_new ("Please Bet  ");
-		table.label_credit = gtk_label_new ("Credit");
-		table.label_bet = gtk_label_new ("0");
-       	table.canvas = gtk_drawing_area_new();
+		g_object_set_data(G_OBJECT(button_chip0), "id", GINT_TO_POINTER(0));		
+
        	
        	/* Set Properties */
         
@@ -132,9 +131,9 @@ void create_window() {
 		context = gtk_widget_get_style_context(hbox_msg);				/* Apply style to hbox */
 		gtk_style_context_add_class(context,"my_hbox_msg");
 		
+		g_signal_connect (about_button, "clicked", G_CALLBACK (activate_about), NULL);
    		g_signal_connect(G_OBJECT(button_hit), "clicked", G_CALLBACK(button_hit_clicked), &table);
    		g_signal_connect(G_OBJECT(button_stand), "clicked", G_CALLBACK(button_stand_clicked), &table);
-		g_signal_connect (about_button, "clicked", G_CALLBACK (activate_about), NULL);
 		g_signal_connect (G_OBJECT (window), "destroy",	G_CALLBACK (destroy), NULL);
 		g_signal_connect(G_OBJECT(table.canvas), "draw", G_CALLBACK(on_draw_event), &table);
     	g_signal_connect(G_OBJECT(button_chip1), "clicked", G_CALLBACK(buttonAdd), &table);
@@ -148,6 +147,7 @@ void create_window() {
  		gtk_widget_show_all (window);
  		
  		gtk_widget_hide(table.hbox);
+ 		gtk_widget_hide(table.button_start);
  		
   		gtk_main();
   		
@@ -213,9 +213,8 @@ void button_hit_clicked(GtkWidget *widget, struct black *table)
 		assign_points(table->dealer);
 		img = table->dealer->card[table->dealer->hand] = cairo_image_surface_create_from_png(table->dealer->card_path[table->dealer->hand]);
 		
-		if (cairo_surface_status(img) != CAIRO_STATUS_SUCCESS) {
+		if (cairo_surface_status(img) != CAIRO_STATUS_SUCCESS)
     		fprintf(stderr, "Could not load imgage for dealer %s", table->dealer->card_path[table->dealer->hand]);
-    	}
 	}
 	
     img = table->player->card[table->player->hand] = cairo_image_surface_create_from_png(table->player->card_path[table->player->hand]);
@@ -249,10 +248,10 @@ void button_stand_clicked(GtkWidget *widget, struct black *table)
 
 gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, struct black *table)
 {
-  if (table->status != 0 || table->end == 1)
-  	do_drawing(cr, table);
+	if (table->status != 0 || table->end == 1)
+		do_drawing(cr, table);
 
-  return FALSE;
+	return FALSE;
 }
 
 void do_drawing(cairo_t *cr, struct black *table)
