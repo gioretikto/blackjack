@@ -18,7 +18,7 @@ The game is played with one deck of 52 cards. The rules are simple: The goal of 
 
 # Required packages
 
-	- Gtk+ 3
+	- Gtk+ 3: sudo apt-get install libgtk-3-dev
 	- gcc
 	- make
 
