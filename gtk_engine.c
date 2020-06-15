@@ -326,14 +326,14 @@ void updatelabel_bet(struct black *table)
 void updatelabel_credit(struct black *table)
 {
 	gchar *display;
-    display = g_strdup_printf(" Credit %d$", table->credit);			/* convert num to str */
-    gtk_label_set_text (GTK_LABEL(table->label_credit), display);		/* set label to "display */
+    display = g_strdup_printf(" Credit %d$", table->credit);		/* convert num to str */
+    gtk_label_set_text (GTK_LABEL(table->label_credit), display);	/* set label to "display */
     g_free(display);                              					/* free display */
 }
 
 void updatelabel_msg(gchar *display, struct black *table)
 {
-	gtk_label_set_text (GTK_LABEL(table->label_msg), display);
+	gtk_label_set_text (GTK_LABEL(table->label_msg), display);	
 }
 
 void reset (GObject *button, struct black *table)

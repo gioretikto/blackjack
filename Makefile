@@ -1,13 +1,21 @@
 CC = gcc
 CFLAGS = `pkg-config --cflags --libs gtk+-3.0` -std=c99 -Wall
-LDLIBS = `pkg-config --libs gtk+-3.0`
-OBJFILES = main.o gtk_engine.o black.o
-TARGET = blackjack
-all: $(TARGET)
+SYSTEM = `uname -s`
 
-$(TARGET): $(OBJFILES)
-	$(CC) $(CFLAGS) $(LDLIBS) -o $(TARGET) $(OBJFILES) 
+ifeq ($(SYSTEM), SunOS)
+	CFLAGS+= -D__EXTENSIONS__
+endif
+
+LDLIBS = `pkg-config --libs gtk+-3.0`
+SRCS = main.c gtk_engine.c black.c
+OBJS = $(SRCS:.c=.o)
+PREFIX ?= /usr/local
+BINDIR ?= $(PREFIX)/bin
+TARGET = blackjack
+
+$(TARGET): $(OBJS)
+	 $(CC) -o $@ $^ $(CFLAGS) $(LDLIBS)
 clean:
-	rm -f $(OBJFILES)
+	rm -f $(OBJS)
 install:
-	cp $(TARGET) /usr/local/bin
+	install $(TARGET) $(BINDIR)
