@@ -1,4 +1,4 @@
-# Blackjack
+# Blackjack v.1.1
 
 A Blackjack written in C and Gtk+3. This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -24,9 +24,10 @@ The game is played with one deck of 52 cards. The rules are simple: The goal of 
 
 # Installation
 
-make blackjack
+	- make blackjack
+	- sudo make install
 
 # How to report bugs?
 
-This game was brought to you by Giovanni Resta
-You can reach me in Freenode IRC channel #cansi
+This game was brought to you by Giovanni Resta giovannirestadev@gmail.com
+You can reach me also in Freenode IRC channel #cansi

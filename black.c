@@ -99,24 +99,24 @@ void findWinner (struct black *table) {
 		
 		if (winner == BLACKJACK) {
 			table->credit += (table->bet * 3)/2;
-			updatelabel_msg("Congratulation you win: ", table);
+			endHand("Congratulation you win: ", table);
 		}
 		
 		else if (winner == PLAYER_WINS) {
-			updatelabel_msg("Congratulation you win: ", table);
+			endHand("Congratulation you win: ", table);
 			table->credit += table->bet;
 		}
 					
 		else if (winner == DEALER_WINS) {
-			updatelabel_msg("Dealer wins ", table);
+			endHand("Dealer wins ", table);
 			table->credit -= table->bet;
 		}
 					
 		else
-			updatelabel_msg("No one wins", table);
+			endHand("No one wins", table);
 		
 		if (table->credit <= 0) {
-			updatelabel_msg("Dealer wins. Sorry you bankrupted", table);
+			endHand("Dealer wins. Sorry you bankrupted", table);
 			table->credit = 50;
 		}
 		

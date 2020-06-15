@@ -33,7 +33,7 @@ struct black {
     _Bool check_stand, status, end;    
     
     GtkWidget *canvas, *hbox_chips, *hbox, *label_msg, *label_credit,
-    		  *label_bet, *button_start, *button_play_again;
+    		  *label_bet, *button_start, *button_play_again, *button_hit, *button_stand;
     
   	cairo_surface_t *image_back;	
 	
@@ -55,7 +55,7 @@ void destroy (GtkWidget *window, gpointer data);
 void buttonAdd (GObject *button, struct black *table);
 void updatelabel_bet(struct black *table);
 void updatelabel_credit(struct black *table);
-void updatelabel_msg(gchar *display, struct black *table);
+void endHand(gchar *display, struct black *table);
 void reset (GObject *button, struct black *table);
 void findWinner (struct black *table);
 void new_game (GtkWidget *window, struct black *table);

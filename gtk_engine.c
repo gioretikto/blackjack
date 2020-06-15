@@ -27,8 +27,6 @@ void create_window() {
         GtkWidget *headbar;
         GtkWidget *vbox;
         GtkWidget *about_button;
-        GtkWidget *button_hit;
-        GtkWidget *button_stand;
        	GtkWidget *button_chip1, *button_chip5, *button_chip25, *button_chip100, *button_chip0;
        	GtkWidget *hbox_msg;
        	
@@ -44,8 +42,8 @@ void create_window() {
 		table.hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 50);
 		table.hbox_chips = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 		hbox_msg = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-		button_hit = gtk_button_new_with_mnemonic ("Hit");
-		button_stand = gtk_button_new_with_mnemonic ("Stand");
+		table.button_hit = gtk_button_new_with_mnemonic ("Hit");
+		table.button_stand = gtk_button_new_with_mnemonic ("Stand");
 		table.button_start = gtk_button_new_with_mnemonic ("Start");
 		table.button_play_again = gtk_button_new_with_mnemonic ("Play Again");
 		table.label_msg = gtk_label_new ("Please Bet  ");
@@ -89,8 +87,8 @@ void create_window() {
 		gtk_container_add (GTK_CONTAINER (vbox), table.canvas);
 		gtk_container_add(GTK_CONTAINER (vbox), table.hbox);
 		gtk_container_add(GTK_CONTAINER (vbox), hbox_msg);
-   		gtk_container_add (GTK_CONTAINER (table.hbox), button_hit);
-   		gtk_container_add (GTK_CONTAINER (table.hbox), button_stand);
+   		gtk_container_add (GTK_CONTAINER (table.hbox), table.button_hit);
+   		gtk_container_add (GTK_CONTAINER (table.hbox), table.button_stand);
 		gtk_container_add(GTK_CONTAINER (hbox_msg), table.label_msg);
 		gtk_container_add(GTK_CONTAINER (hbox_msg), table.label_bet);
 		gtk_container_add(GTK_CONTAINER (hbox_msg), table.label_credit);
@@ -132,8 +130,8 @@ void create_window() {
 		gtk_style_context_add_class(context,"my_hbox_msg");
 		
 		g_signal_connect (about_button, "clicked", G_CALLBACK (activate_about), NULL);
-   		g_signal_connect(G_OBJECT(button_hit), "clicked", G_CALLBACK(button_hit_clicked), &table);
-   		g_signal_connect(G_OBJECT(button_stand), "clicked", G_CALLBACK(button_stand_clicked), &table);
+   		g_signal_connect(G_OBJECT(table.button_hit), "clicked", G_CALLBACK(button_hit_clicked), &table);
+   		g_signal_connect(G_OBJECT(table.button_stand), "clicked", G_CALLBACK(button_stand_clicked), &table);
 		g_signal_connect (G_OBJECT (window), "destroy",	G_CALLBACK (destroy), NULL);
 		g_signal_connect(G_OBJECT(table.canvas), "draw", G_CALLBACK(on_draw_event), &table);
     	g_signal_connect(G_OBJECT(button_chip1), "clicked", G_CALLBACK(buttonAdd), &table);
@@ -168,6 +166,8 @@ void init_game(GtkWidget *widget, struct black *table) {
 	int i;
 	gtk_widget_hide(widget);
 	gtk_widget_show(table->hbox);
+	gtk_widget_show(table->button_hit);
+	gtk_widget_show(table->button_stand);
 	gtk_widget_hide(table->hbox_chips);
 	gtk_widget_hide(table->button_play_again);
 	gtk_label_set_text (GTK_LABEL(table->label_msg), "");
@@ -276,7 +276,7 @@ void do_drawing(cairo_t *cr, struct black *table)
 
 void activate_about() {
 
-	const gchar *authors[] = {"Giovanni Resta", NULL};
+	const gchar *authors[] = {"Giovanni Resta", "giovannirestadev@gmail.com", NULL};
 
 	gtk_show_about_dialog (NULL,
                        "program-name", "BlackJack",
@@ -331,9 +331,11 @@ void updatelabel_credit(struct black *table)
     g_free(display);                              					/* free display */
 }
 
-void updatelabel_msg(gchar *display, struct black *table)
+void endHand(gchar *display, struct black *table)
 {
-	gtk_label_set_text (GTK_LABEL(table->label_msg), display);	
+	gtk_widget_hide(table->button_hit);
+	gtk_widget_hide(table->button_stand);
+	gtk_label_set_text (GTK_LABEL(table->label_msg), display);
 }
 
 void reset (GObject *button, struct black *table)
