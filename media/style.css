@@ -1,0 +1,70 @@
+window {
+  background-color: #53774c;
+}
+
+.my_hbox_buttons button{
+  background: none;
+  border: none; box-shadow: none; padding: 0;
+  margin: 15px;
+  margin-left: 50px;
+  margin-bottom: 10px;
+  font-size: 50px;
+}
+
+.my_hbox_chips button{
+  background: none;
+  border: none; box-shadow: none; padding: 0;
+  margin: 15px;
+  margin-bottom: 10px;
+  font-size: 50px;
+}
+
+.my_hbox_buttons button:hover{
+	background-color: green;
+}
+
+.my_hbox_chips button:hover{
+	background-color: green;
+}
+
+.my_hbox_creditBet label{
+	margin-left: 60px;
+	margin-bottom: 15px;
+	font-size: 25px;
+	margin: 15px;
+}
+
+.my_hbox_endGame label{
+	margin-left: 60px;
+	margin-bottom: 15px;
+	font-size: 25px;
+	margin: 15px;
+}
+
+.my_hbox_endGame button{
+  background: none;
+  border: none; box-shadow: none; padding: 0;
+  margin: 15px;
+  margin-bottom: 10px;
+  font-size: 50px;
+}
+
+.my_hbox_endGame button:hover{
+	background-color: green;
+}
+
+.my_hbox_dealer {
+  background: none;
+  border: none; box-shadow: none; padding: 0;
+  margin: 30px;
+  font-size: 50px;
+}
+
+.my_hbox_player {
+  background: none;
+  border: none; box-shadow: none; padding: 0;
+  margin: 30px;
+  font-size: 50px;
+}
+
+button:focus { outline:none; }
