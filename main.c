@@ -1,30 +1,14 @@
-/* Created by Giovanni Resta giovannirestadev@gmail.com
-
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place, Suite 330, Boston, MA  02111-1307  USA
- */
-
-#include "black.h"
 #include <stdlib.h>
+#include <time.h>
+#include "black.h"
 
 int main (int argc, char *argv[])
 {       	
-       	gtk_init (&argc, &argv); 	
-        
-		srand((unsigned)time(NULL));
+	srand ((unsigned) time(NULL));
 		
-		create_window();
-				
-        return 0;
+   	gtk_init (&argc, &argv);
+       	
+	create_window();
+						
+    return 0;
 }
