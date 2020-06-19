@@ -1,6 +1,9 @@
 #include <gtk/gtk.h>
 
 #define CARDS 52
+#define MAX_CARDS_HAND 7
+
+enum players {CPU,PLY};
 
 struct player_data {
 
@@ -8,6 +11,7 @@ struct player_data {
 	unsigned int total;			/* total points */
 	unsigned int hand;			/* card box index */
   	unsigned int aces; 			/* number of aces */
+  	GtkWidget *cards[MAX_CARDS_HAND];
 
 };
 
@@ -17,9 +21,6 @@ struct black {
 			  *label_credit, *label_bet, *label_endGame, *button_start, *button_hit,
 			  *button_stand, *button_playAgain;
 	
-	GtkWidget *cards_dealer[7];
-	GtkWidget *cards_player[7];
-	
 	int credit;
 	int bet;
 	
@@ -27,8 +28,7 @@ struct black {
 	
 	const char *covered_card;
 	
-	struct player_data dealer;
-	struct player_data player;
+	struct player_data player[2];
 	
 	_Bool check_stand;
 
@@ -59,3 +59,4 @@ void endHand(gchar *display, struct black *table);
 void new_game (GtkWidget *window G_GNUC_UNUSED, struct black *table);
 void updateLabelCredit(struct black *table);
 gboolean dealer_reply (struct black *table);
+void getCard(struct black *table, enum players id);

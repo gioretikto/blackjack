@@ -83,13 +83,14 @@ void create_window(void)
 	
 	int i;	
 	
-	for (i = 0; i < 7; i++) {
-		table.cards_dealer[i] = gtk_image_new();
-		table.cards_player[i] = gtk_image_new();
-		gtk_container_add (GTK_CONTAINER (table.hbox_dealer), table.cards_dealer[i]);
-		gtk_widget_hide(table.cards_dealer[i]);
-		gtk_container_add (GTK_CONTAINER (table.hbox_player), table.cards_player[i]);
-		gtk_widget_hide(table.cards_player[i]);
+	for (i = 0; i < MAX_CARDS_HAND; i++)
+	{
+		table.player[0].cards[i] = gtk_image_new();
+		table.player[1].cards[i] = gtk_image_new();
+		gtk_container_add (GTK_CONTAINER (table.hbox_dealer), table.player[0].cards[i]);
+		gtk_widget_hide(table.player[0].cards[i]);
+		gtk_container_add (GTK_CONTAINER (table.hbox_player), table.player[1].cards[i]);
+		gtk_widget_hide(table.player[1].cards[i]);
 	}
 	
 	gtk_container_add (GTK_CONTAINER (table.hbox_buttons), table.button_hit);
@@ -165,7 +166,7 @@ void create_window(void)
 	gtk_widget_hide(table.hbox_endGame);
 	
 	shuffle(deck);
-	
+
 	gtk_main();
 }
 
@@ -174,9 +175,9 @@ void init_game(GtkWidget *button G_GNUC_UNUSED, struct black *table)
 	gtk_widget_hide(table->hbox_chips);
 	gtk_widget_show(table->hbox_buttons);
 	
-	table->player.total = table->dealer.total = 0;
-	table->player.hand = table->dealer.hand = 0;
-	table->player.aces = table->dealer.aces = 0;
+	table->player[PLY].total = table->player[CPU].total = 0;
+	table->player[PLY].hand = table->player[CPU].hand = 0;
+	table->player[PLY].aces = table->player[CPU].aces = 0;
 	table->check_stand = 0;
 	
 	/* Deal 1st hand: first two cards */
@@ -185,71 +186,41 @@ void init_game(GtkWidget *button G_GNUC_UNUSED, struct black *table)
 	
 	for (i = 0; i < 2; i++)
 	{
-		if (i == 0)
-		{
-			gtk_image_set_from_resource (GTK_IMAGE(table->cards_dealer[i]), "/media/back.png");
-			table->dealer.card_value = deck[table->cards_dealt].value;
-			table->covered_card = deck[table->cards_dealt].file;
-			gtk_widget_show(table->cards_dealer[i]);
-			assignPoints(&table->dealer);
-		}
-		
-		else
-		{
-			gtk_image_set_from_resource (GTK_IMAGE(table->cards_dealer[i]), deck[table->cards_dealt].file);
-			table->dealer.card_value = deck[table->cards_dealt].value;
-			gtk_widget_show(table->cards_dealer[i]);
-			assignPoints(&table->dealer);
-		}
-		
-		table->cards_dealt++;
-		
-		gtk_image_set_from_resource (GTK_IMAGE(table->cards_player[i]), deck[table->cards_dealt].file);
-		table->player.card_value = deck[table->cards_dealt].value;
-		gtk_widget_show(table->cards_player[i]);
-		assignPoints(&table->player);
-		table->cards_dealt++;
+		getCard(table, CPU);
+		getCard(table, PLY);
 	}
-	
-	table->player.hand = table->dealer.hand = 2;
 	
 	findWinner(table);	
 }
 
 void button_hit_clicked(GtkWidget *widget G_GNUC_UNUSED, struct black *table)
 {
-	gtk_image_set_from_resource (GTK_IMAGE(table->cards_player[table->player.hand]), deck[table->cards_dealt].file);
-	table->player.card_value = deck[table->cards_dealt].value;
-	gtk_widget_show(table->cards_player[table->player.hand]);
-	assignPoints(&table->player);
-	table->player.hand++;
-	table->cards_dealt++;
+	getCard(table, PLY);
 	gtk_widget_hide(table->hbox_buttons);
 	g_timeout_add(1000, (GSourceFunc)dealer_reply, table);
 }
 
-
-gboolean dealer_reply (struct black *table)
+void getCard(struct black *table, enum players id)
 {
-	if (table->dealer.total < 17)
+	if (id == CPU && table->player[CPU].hand == 0)
 	{
-		gtk_image_set_from_resource (GTK_IMAGE(table->cards_dealer[table->dealer.hand]), deck[table->cards_dealt].file);
-		table->dealer.card_value = deck[table->cards_dealt].value;
-		gtk_widget_show(table->cards_dealer[table->dealer.hand]);
-		assignPoints(&table->dealer);
-		table->dealer.hand++;
-		table->cards_dealt++;
+		gtk_image_set_from_resource (GTK_IMAGE(table->player[CPU].cards[table->player[CPU].hand]), "/media/back.png");
+		table->covered_card = deck[table->cards_dealt].file;		
 	}
 	
-	gtk_widget_show(table->hbox_buttons);
-	findWinner(table);
-	
-	return FALSE;
+	else
+		gtk_image_set_from_resource (GTK_IMAGE(table->player[id].cards[table->player[id].hand]), deck[table->cards_dealt].file);
+		
+	table->player[id].card_value = deck[table->cards_dealt].value;
+	gtk_widget_show(table->player[id].cards[table->player[id].hand]);
+	assignPoints(&table->player[id]);
+	table->player[id].hand++;
+	table->cards_dealt++;
 }
 
 void button_stand_clicked(GtkWidget *widget G_GNUC_UNUSED, struct black *table)
 {
-	if (table->dealer.total < 17)
+	if (table->player[CPU].total < 17)
 	{
 		gtk_widget_hide(table->hbox_buttons);
 		g_timeout_add(1000, (GSourceFunc)dealer_reply, table);
@@ -260,6 +231,19 @@ void button_stand_clicked(GtkWidget *widget G_GNUC_UNUSED, struct black *table)
 		table->check_stand = 1;	
 		findWinner(table);
 	}
+}
+
+gboolean dealer_reply (struct black *table)
+{
+	if (table->player[CPU].total < 17)
+	{
+		getCard(table, CPU);
+	}
+	
+	gtk_widget_show(table->hbox_buttons);
+	findWinner(table);
+	
+	return FALSE;
 }
 
 void destroy (GtkWidget *window G_GNUC_UNUSED, gpointer data G_GNUC_UNUSED)
@@ -273,7 +257,8 @@ void buttonAdd (GObject *button, struct black *table)
 	
 	int tmp_bet = GPOINTER_TO_INT(g_object_get_data (button,"id"));
 		
-	if (table->bet + tmp_bet <= table->credit) {
+	if (table->bet + tmp_bet <= table->credit)
+	{
 	    table->bet += tmp_bet;
     	updatelabel_bet(table);
     }
@@ -308,7 +293,7 @@ void endHand(gchar *display, struct black *table)
 	gtk_widget_show (table->hbox_endGame);
 	gtk_widget_hide(table->hbox_buttons);
 	updateLabelCredit(table);
-	gtk_image_set_from_resource (GTK_IMAGE(table->cards_dealer[0]), table->covered_card);
+	gtk_image_set_from_resource (GTK_IMAGE(table->player[CPU].cards[0]), table->covered_card);
 	table->bet = 0;
 	
 	if (table->cards_dealt > CARDS-14)
@@ -326,9 +311,9 @@ void new_game (GtkWidget *window G_GNUC_UNUSED, struct black *table)
 	
 	int i;
 	
-	for (i = 0; i < 7; i++) {
-		gtk_widget_hide(table->cards_dealer[i]);
-		gtk_widget_hide(table->cards_player[i]);
+	for (i = 0; i < MAX_CARDS_HAND; i++) {
+		gtk_widget_hide(table->player[CPU].cards[i]);
+		gtk_widget_hide(table->player[PLY].cards[i]);
 	}
 }
 

@@ -1,6 +1,6 @@
 #include "black.h"
 
-enum outcomes {NO_WINNER, PLAYER_WINS, BLACKJACK, DEALER_WINS, TIE};
+enum outcomes {NO_WINNER, PLY_WINS, BLACKJACK, CPU_WINS, TIE};
 
 void assignPoints(struct player_data *player) {
 
@@ -26,37 +26,37 @@ void findWinner (struct black *table) {
 
 	if (table->check_stand == 1) {
 	
-		if (table->dealer.total == table->player.total)			/* Tie */
+		if (table->player[CPU].total == table->player[PLY].total)			/* Tie */
 			winner = TIE;
 	
-		else if (table->dealer.total <= 21) {
+		else if (table->player[CPU].total <= 21) {
 		
-			if (table->player.total > table->dealer.total)  	/* Player wins */
-				winner = PLAYER_WINS;
+			if (table->player[PLY].total > table->player[CPU].total)  	/* Player wins */
+				winner = PLY_WINS;
 			else
-				winner = DEALER_WINS;
+				winner = CPU_WINS;
 		}
 			
 		else   													/* Dealer wins  player->total > 21 */
-			winner = DEALER_WINS;
+			winner = CPU_WINS;
 	}
 	
 	else {
 	
-		if ( (table->player.total == 21) && (table->dealer.total == 21) )		/* A tie */
+		if ( (table->player[PLY].total == 21) && (table->player[CPU].total == 21) )		/* A tie */
 			winner = TIE;
 	
-		else if (table->player.total > 21) 		/* If the player exceeds a sum of 21 "busts", loses, even if the dealer also exceeds 21 */
-			winner = DEALER_WINS;
+		else if (table->player[PLY].total > 21) 		/* If the player exceeds a sum of 21 "busts", loses, even if the dealer also exceeds 21 */
+			winner = CPU_WINS;
 
-		else if (table->player.total == 21)
-				winner = PLAYER_WINS;
+		else if (table->player[PLY].total == 21)
+				winner = PLY_WINS;
 					
-		else if (table->dealer.total == 21)		/* Dealer wins */
-			winner = DEALER_WINS;
+		else if (table->player[CPU].total == 21)		/* Dealer wins */
+			winner = CPU_WINS;
 			
-		else if (table->dealer.total > 21)
-				winner = PLAYER_WINS;
+		else if (table->player[CPU].total > 21)
+				winner = PLY_WINS;
 			
 		else
 			winner = NO_WINNER;					/* no winner found */
@@ -69,12 +69,12 @@ void findWinner (struct black *table) {
 			endHand("Congratulation you win: ", table);			
 		}
 		
-		else if (winner == PLAYER_WINS) {
+		else if (winner == PLY_WINS) {
 			table->credit += table->bet;
 			endHand("Congratulation you win: ", table);
 		}
 					
-		else if (winner == DEALER_WINS) {
+		else if (winner == CPU_WINS) {
 			table->credit -= table->bet;
 			endHand("Dealer wins ", table);
 		}
