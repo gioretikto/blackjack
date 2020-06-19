@@ -202,7 +202,7 @@ void button_hit_clicked(GtkWidget *widget G_GNUC_UNUSED, struct black *table)
 
 void getCard(struct black *table, enum players id)
 {
-	if (id == CPU && table->player[CPU].hand == 0)
+	if (table->player[CPU].hand == 0 && id == CPU)
 	{
 		gtk_image_set_from_resource (GTK_IMAGE(table->player[CPU].cards[table->player[CPU].hand]), "/media/back.png");
 		table->covered_card = deck[table->cards_dealt].file;		
