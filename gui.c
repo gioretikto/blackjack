@@ -180,6 +180,8 @@ void init_game(GtkWidget *button G_GNUC_UNUSED, struct black *table)
 	table->player[PLY].aces = table->player[CPU].aces = 0;
 	table->check_stand = 0;
 	
+	gtk_image_set_from_resource (GTK_IMAGE(table->player[CPU].cards[table->player[CPU].hand]), "/media/back.png");
+	
 	/* Deal 1st hand: first two cards */
 	
 	int i;
@@ -190,7 +192,7 @@ void init_game(GtkWidget *button G_GNUC_UNUSED, struct black *table)
 		getCard(table, PLY);
 	}
 	
-	findWinner(table);	
+	findWinner(table);
 }
 
 void button_hit_clicked(GtkWidget *widget G_GNUC_UNUSED, struct black *table)
@@ -202,10 +204,15 @@ void button_hit_clicked(GtkWidget *widget G_GNUC_UNUSED, struct black *table)
 
 void getCard(struct black *table, enum players id)
 {
+	if (table->cards_dealt == CARDS)
+	{
+		shuffle(deck);
+		table->cards_dealt = 0;
+	}
+	
 	if (table->player[CPU].hand == 0 && id == CPU)
 	{
-		gtk_image_set_from_resource (GTK_IMAGE(table->player[CPU].cards[table->player[CPU].hand]), "/media/back.png");
-		table->covered_card = deck[table->cards_dealt].file;		
+		table->covered_card = deck[table->cards_dealt].file;	
 	}
 	
 	else
@@ -228,7 +235,7 @@ void button_stand_clicked(GtkWidget *widget G_GNUC_UNUSED, struct black *table)
 	
 	else
 	{
-		table->check_stand = 1;	
+		table->check_stand = 1;
 		findWinner(table);
 	}
 }
@@ -295,12 +302,6 @@ void endHand(gchar *display, struct black *table)
 	updateLabelCredit(table);
 	gtk_image_set_from_resource (GTK_IMAGE(table->player[CPU].cards[0]), table->covered_card);
 	table->bet = 0;
-	
-	if (table->cards_dealt > CARDS-14)
-	{
-		shuffle(deck);
-		table->cards_dealt = 0;
-	}
 }
 
 void new_game (GtkWidget *window G_GNUC_UNUSED, struct black *table)
